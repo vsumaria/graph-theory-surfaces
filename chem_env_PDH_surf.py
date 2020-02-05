@@ -220,11 +220,8 @@ def process_site(atoms, full, nl, site, radius=3):
     for last_index, next_index in zip(site[:-1], site[1:]):
         # Error handling needed, .index could be None / -1?
         neighbors, offsets = nl.get_neighbors(last_index)
-        #neighbor_index = list(neighbors[last_index]).index(next_index)
         neighbor_index = list(neighbors).index(next_index)
-        #offset += offsets[last_index][neighbor_index]
         offset += offsets[neighbor_index]
-        #print(offset)
         full.add_edge("X",
                       node_symbol(atoms[next_index], offset),
                       bond="X:{}".format(atoms[next_index].symbol),

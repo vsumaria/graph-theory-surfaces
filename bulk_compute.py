@@ -13,6 +13,25 @@ from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.io.ase import AseAtomsAdaptor
 from os import system
 
+def K_POINT_make(path,repeat_vector,sin_pnt_path):
+    kp = []
+    #print(repeat_vector)
+    for i,rep in enumerate(repeat_vector):
+        f = open(path+'/KPOINTS')
+        kp.append(int(float(f.readlines()[3].split(' ')[i])/rep))
+    #print(kp)
+    new_f = open(sin_pnt_path+'/KPOINTS','w')
+    f = open(path+'/KPOINTS')
+    for i, kps in enumerate(f.readlines()):
+        if i != 3:
+            new_f.write(kps)
+        else:
+            for k in kp:
+                new_f.write('{} '.format(str(k)))
+            new_f.write('\n')
+    f.close()
+    new_f.close()
+
 def make_single_point_job(path_dir,i,atoms):
     template_path = '/depot/jgreeley/data/Pushkar_Sid_Alloy/template'
     sin_pnt_path = '{}/single_point_{}'.format(path_dir,i)
@@ -20,24 +39,28 @@ def make_single_point_job(path_dir,i,atoms):
     
     cell_array = [atoms.get_cell()[0][0],atoms.get_cell()[1][1],atoms.get_cell()[2][2]]
     y = atoms.copy()
+    repeat_array = [1,1,1]
     for j, cell_len in enumerate(cell_array):
         if cell_len < 6.5 and j ==0:
             y = y.repeat([2,1,1])
+            repeat_array[j] = 2 
         if cell_len < 6.5 and j ==1:
             y = y.repeat([1,2,1])
+            repeat_array[j] = 2
         if cell_len < 6.5 and j ==2:
             y = y.repeat([1,1,2])
+            repeat_array[j] = 2
     print(i,y[i].symbol)
     del y[i]
-    
+    K_POINT_make(path_dir,repeat_array,sin_pnt_path)
     y.write('{}/POSCAR'.format(sin_pnt_path))
     shutil.copyfile('{}/POTCAR'.format(path_dir), '{}/POTCAR'.format(sin_pnt_path))
     shutil.copyfile('{}/INCAR'.format(template_path), '{}/INCAR'.format(sin_pnt_path))
     shutil.copyfile('{}/qs_vasp'.format(template_path), '{}/qs_vasp'.format(sin_pnt_path))
-    s = AseAtomsAdaptor.get_structure(read(sin_pnt_path+'/'+'POSCAR'))
-    vol_k = int(24**3/s.volume)
-    k=Kpoints.automatic_density_by_vol(structure=s,kppvol=vol_k)
-    k.write_file(sin_pnt_path+'/'+'KPOINTS')
+    #s = AseAtomsAdaptor.get_structure(read(sin_pnt_path+'/'+'POSCAR'))
+    #vol_k = int(24**3/s.volume)
+    #k=Kpoints.automatic_density_by_vol(structure=s,kppvol=vol_k)
+    #k.write_file(sin_pnt_path+'/'+'KPOINTS')
     system("cd "+sin_pnt_path+" ; sortatoms.py POSCAR")
 
 for di in os.listdir(argv[1]):

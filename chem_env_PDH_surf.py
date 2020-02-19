@@ -10,6 +10,10 @@ bond_match = iso.categorical_edge_match('bond', '')
 # Handles isomorphism for atoms with regards to perodic boundary conditions
 ads_match = iso.categorical_node_match(['index', 'ads'], [-1, False]) 
 
+def connected_component_subgraphs(G):
+    for c in nx.connected_components(G):
+        yield G.subgraph(c)
+
 def bond_symbol(atoms, a1, a2):
     return "{}{}".format(*sorted((atoms[a1].symbol, atoms[a2].symbol)))
 
@@ -300,7 +304,7 @@ def process_atoms(atoms, nl, adsorbate_atoms=None, radius=2, grid_n=(2, 2, 0), c
     ads_graphs = nx.subgraph(full, ads_nodes)
 
     # Cut apart graph
-    ads_graphs = nx.connected_component_subgraphs(ads_graphs) 
+    ads_graphs = connected_component_subgraphs(ads_graphs) 
 
     chem_envs = []
     for ads in ads_graphs:

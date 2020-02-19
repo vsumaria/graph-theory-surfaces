@@ -11,6 +11,7 @@ import os
 import shutil
 from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.io.ase import AseAtomsAdaptor
+from os import system
 
 def make_single_point_job(path_dir,i,atoms):
     template_path = '/depot/jgreeley/data/Pushkar_Sid_Alloy/template'
@@ -19,28 +20,30 @@ def make_single_point_job(path_dir,i,atoms):
     
     cell_array = [atoms.get_cell()[0][0],atoms.get_cell()[1][1],atoms.get_cell()[2][2]]
     y = atoms.copy()
-    for i, cell_len in enumerate(cell_array):
-        if cell_len < 6.5 and i ==0:
+    for j, cell_len in enumerate(cell_array):
+        if cell_len < 6.5 and j ==0:
             y = y.repeat([2,1,1])
-        if cell_len < 6.5 and i ==1:
+        if cell_len < 6.5 and j ==1:
             y = y.repeat([1,2,1])
-        if cell_len < 6.5 and i ==2:
+        if cell_len < 6.5 and j ==2:
             y = y.repeat([1,1,2])
-            
+    print(i,y[i].symbol)
     del y[i]
-    s = AseAtomsAdaptor.get_structure(read(path_dir+'/'+'CONTCAR'))
-    vol_k = int(24**3/s.volume)
-    k=Kpoints.automatic_density_by_vol(structure=s,kppvol=vol_k)
-    k.write_file(sin_pnt_path+'/'+'KPOINTS')
+    
     y.write('{}/POSCAR'.format(sin_pnt_path))
     shutil.copyfile('{}/POTCAR'.format(path_dir), '{}/POTCAR'.format(sin_pnt_path))
     shutil.copyfile('{}/INCAR'.format(template_path), '{}/INCAR'.format(sin_pnt_path))
     shutil.copyfile('{}/qs_vasp'.format(template_path), '{}/qs_vasp'.format(sin_pnt_path))
+    s = AseAtomsAdaptor.get_structure(read(sin_pnt_path+'/'+'POSCAR'))
+    vol_k = int(24**3/s.volume)
+    k=Kpoints.automatic_density_by_vol(structure=s,kppvol=vol_k)
+    k.write_file(sin_pnt_path+'/'+'KPOINTS')
+    system("cd "+sin_pnt_path+" ; sortatoms.py POSCAR")
 
 for di in os.listdir(argv[1]):
     path_dir = '{}/{}'.format(argv[1],di)
     x = read('{}/CONTCAR'.format(path_dir))
-    print(x)
+    print(path_dir)
 
     nl = NeighborList(natural_cutoffs(x, 1.1), self_interaction=False, bothways = True,skin=0.25)
     nl.update(x)

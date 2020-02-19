@@ -263,6 +263,7 @@ def process_atoms(atoms, nl, adsorbate_atoms=None, radius=2, grid_n=(2, 2, 0), c
     # (2 * (n - 1) + 1) ^ 2 scaling
 
     # Add all atoms to graph
+    #print('in process_atoms')
     for index, atom in enumerate(atoms):
         for x, y, z in grid_iterator(grid_n):
             add_atoms_node(full, atoms, index, (x, y, z))   
@@ -286,7 +287,7 @@ def process_atoms(atoms, nl, adsorbate_atoms=None, radius=2, grid_n=(2, 2, 0), c
 
     # Add the case of surface-ads + ads-ads edges to clean graph case here
     if clean_graph:
-        edges = [(u, v, d) for u, v,d in full.edges.data() if d["dist"] < 2]    
+        edges = [(u, v, d) for u, v,d in full.edges.data() if d["dist"] < 2]  ## the dist attribute ensures, only ads-ads and surf-ads bonds    
         nodes = [(n, d) for n, d in full.nodes.data() if d["index"] in adsorbate_atoms]
         full=nx.Graph(clean_graph)
         full.add_nodes_from(nodes)

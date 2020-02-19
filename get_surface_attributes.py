@@ -149,7 +149,7 @@ radii_multiplier = 1.1
 skin = 0.25
 f = open(argv[1])
 out = open('surface_info','w')
-out.write('Surface_atoms' + '\t' + 'coordination' + '\t' + 'avg_site_bond_dis' + '\t' + 'dband_center' + '\t' + 'dband_width'+ '\n')
+out.write('Surface_atoms' + '\t' + 'coordination_ads' + '\t' + 'min_ads_bond_dis' + '\t' + 'dband_center' + '\t' + 'dband_width'+ '\t' + 'CN_site' + '\t' + 'avg_site_bond_distance'+ '\n')
 for i in f.readlines():
     path = i.replace('\n','')
     atoms = read(path+'/POSCAR')
@@ -172,31 +172,43 @@ for i in f.readlines():
         bond_distance.append(bond_distances)
         nn_index.append(index)
     
-    nearest_neighbor=(list(itertools.chain.from_iterable(nearest_neighbor)))
-    bond_distance=(list(itertools.chain.from_iterable(bond_distance)))
-    nn_index=(list(itertools.chain.from_iterable(nn_index)))
     print(nearest_neighbor)
     print(bond_distance)
+    nearest_neighbor=(list(itertools.chain.from_iterable(nearest_neighbor)))
+    bond_distance_ads=(list(itertools.chain.from_iterable(bond_distance)))
+    nn_index=(list(itertools.chain.from_iterable(nn_index)))
+    next_nearest = []
+    bond_distance_site =[]
+    print(nearest_neighbor)
+    print(bond_distance_ads)
+    print('The avg of site bnd distance is')
     print(nn_index)
+
+#    nn_index = []
+    for i in np.unique(nearest_neighbor):
+        nn,bond_distances,_ = add_to_list(chem_env[0],i)
+        next_nearest.append(nn)
+        bond_distance_site.append(bond_distances)
+        #nn_index.append(index)
+    #print(next_nearest)
+    #print(bond_distance_ads)
+    nearest_unique = np.unique(nearest_neighbor)
+    CN_ads = len(np.unique(nn_index))
+    CN_site = np.mean(list(len(i) for i in next_nearest))
+    print(bond_distance_site)
     if len(nn_index) != 0:
-        dband_c_avg,dband_w_avg=calculate_dband(path,nn_index)
-        site_indices = str(nn_index)
-        out.write('{}  \t  {}  \t  {}  \t  {}  \t  {}  \n'.format(site_indices,len(nn_index),np.mean(bond_distance),dband_c_avg,dband_w_avg))
+        dband_c_avg,dband_w_avg=calculate_dband(path,np.unique(nn_index))
+        site_indices = str(np.unique(nn_index))
+        bond_dis_site_avg = 0
+        for i in bond_distance_site:
+            bond_dis_site_avg+=(np.mean(i))
+        bond_dis_site_avg=bond_dis_site_avg/CN_ads
+        print(bond_dis_site_avg)
+
+        out.write('{}  \t  {}  \t  {}  \t  {}  \t  {} \t  {}  \t  {}  \n'.format(site_indices,CN_ads,min(bond_distance_ads),dband_c_avg,dband_w_avg,CN_site,bond_dis_site_avg))
     else:
         print('Molecule is physorbed or something else is off, please check path')
         out.write('The molecule is physisorbed or something is off chech this path \n')
-'''
-next_nearest = []
-bond_distance =[]
-nn_index = []
-for i in nearest_neighbor:
-    _,nn,bond_distances = add_to_list(chem_env[0],i)
-    next_nearest.append(nn)
-    bond_distance.append(bond_distances)
-    #nn_index.append(index)
-print(next_nearest)
-print(bond_distance)
-CN_ads = len(nearest_neighbor)
-CN_site = np.mean(list(len(i) for i in next_nearest))
+
 print(CN_ads, CN_site)
-'''
+

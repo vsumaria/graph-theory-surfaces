@@ -39,20 +39,29 @@ def make_single_point_job(path_dir,i,atoms):
     
     cell_array = [atoms.get_cell()[0][0],atoms.get_cell()[1][1],atoms.get_cell()[2][2]]
     y = atoms.copy()
+    tot_atoms = len(atoms)
+    cell_cutoff = 7.5
     repeat_array = [1,1,1]
     for j, cell_len in enumerate(cell_array):
-        if cell_len < 6.5 and j ==0:
-            y = y.repeat([2,1,1])
+        if cell_len < cell_cutoff and j ==0:
+            mult = int(cell_cutoff/cell_len)
+            y = y.repeat([2*mult,1,1])
             repeat_array[j] = 2 
-        if cell_len < 6.5 and j ==1:
-            y = y.repeat([1,2,1])
+            tot_atoms = tot_atoms*mult*2
+        if cell_len < cell_cutoff and j ==1:
+            mult = int(cell_cutoff/cell_len)
+            y = y.repeat([1,2*mult,1])
+            tot_atoms =tot_atoms*mult*2
             repeat_array[j] = 2
-        if cell_len < 6.5 and j ==2:
-            y = y.repeat([1,1,2])
+        if cell_len < cell_cutoff and j ==2:
+            mult = int(cell_cutoff/cell_len)
+            y = y.repeat([1,1,2*mult])
+            tot_atoms =tot_atoms*mult*2
             repeat_array[j] = 2
     print(i,y[i].symbol)
     del y[i]
     K_POINT_make(path_dir,repeat_array,sin_pnt_path)
+    nodes = int(tot_atoms/10)
     y.write('{}/POSCAR'.format(sin_pnt_path))
     shutil.copyfile('{}/POTCAR'.format(path_dir), '{}/POTCAR'.format(sin_pnt_path))
     shutil.copyfile('{}/INCAR'.format(template_path), '{}/INCAR'.format(sin_pnt_path))
@@ -61,7 +70,10 @@ def make_single_point_job(path_dir,i,atoms):
     #vol_k = int(24**3/s.volume)
     #k=Kpoints.automatic_density_by_vol(structure=s,kppvol=vol_k)
     #k.write_file(sin_pnt_path+'/'+'KPOINTS')
+    system("cd "+sin_pnt_path+" ; change_nodes.sh {}".format(nodes))
     system("cd "+sin_pnt_path+" ; sortatoms.py POSCAR")
+    system("cd "+sin_pnt_path+" ; NIFEmakePOT")
+    system("cd "+sin_pnt_path+" ; qsub qs_vasp")
 
 for di in os.listdir(argv[1]):
     path_dir = '{}/{}'.format(argv[1],di)
@@ -79,7 +91,7 @@ for di in os.listdir(argv[1]):
         node_c = '{}:{}[0,0,0]'.format(x[i].symbol,i)    #### choose the center node for each atom in the unit cell
         sub_graph = nx.ego_graph(full,node_c,radius =2)  #### make a subgraph out of that node 
         for j,uni in enumerate(unique_sub_graphs):
-            if compare_chem_envs([sub_graph],[uni]):
+            if compare_chem_envs([sub_graph],[uni]):     ## the bond attribute of the graph edges are being compared here and the symbols in the edges matter.
                 print('atom {} chemical environment is similar to atom {}'.format(i,j))
                 break
         else:

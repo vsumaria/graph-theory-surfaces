@@ -33,7 +33,7 @@ def K_POINT_make(path,repeat_vector,sin_pnt_path):
     new_f.close()
 
 def make_single_point_job(path_dir,i,atoms):
-    template_path = '/depot/jgreeley/data/Pushkar_Sid_Alloy/template'
+    template_path = '/depot/jgreeley/data/Pushkar_Sid_Alloy/template_single'
     sin_pnt_path = '{}/single_point_{}'.format(path_dir,i)
     os.makedirs(sin_pnt_path)
     
@@ -44,24 +44,24 @@ def make_single_point_job(path_dir,i,atoms):
     repeat_array = [1,1,1]
     for j, cell_len in enumerate(cell_array):
         if cell_len < cell_cutoff and j ==0:
-            mult = int(cell_cutoff/cell_len)
-            y = y.repeat([2*mult,1,1])
+            mult = int(cell_cutoff/cell_len)+1
+            y = y.repeat([mult,1,1])
             repeat_array[j] = 2 
-            tot_atoms = tot_atoms*mult*2
+            tot_atoms = tot_atoms*mult
         if cell_len < cell_cutoff and j ==1:
-            mult = int(cell_cutoff/cell_len)
-            y = y.repeat([1,2*mult,1])
-            tot_atoms =tot_atoms*mult*2
+            mult = int(cell_cutoff/cell_len)+1
+            y = y.repeat([1,mult,1])
+            tot_atoms =tot_atoms*mult
             repeat_array[j] = 2
         if cell_len < cell_cutoff and j ==2:
-            mult = int(cell_cutoff/cell_len)
-            y = y.repeat([1,1,2*mult])
-            tot_atoms =tot_atoms*mult*2
+            mult = int(cell_cutoff/cell_len)+1
+            y = y.repeat([1,1,mult])
+            tot_atoms =tot_atoms*mult
             repeat_array[j] = 2
     print(i,y[i].symbol)
     del y[i]
     K_POINT_make(path_dir,repeat_array,sin_pnt_path)
-    nodes = int(tot_atoms/10)
+    nodes = int(tot_atoms/20)
     y.write('{}/POSCAR'.format(sin_pnt_path))
     shutil.copyfile('{}/POTCAR'.format(path_dir), '{}/POTCAR'.format(sin_pnt_path))
     shutil.copyfile('{}/INCAR'.format(template_path), '{}/INCAR'.format(sin_pnt_path))
@@ -73,12 +73,16 @@ def make_single_point_job(path_dir,i,atoms):
     system("cd "+sin_pnt_path+" ; change_nodes.sh {}".format(nodes))
     system("cd "+sin_pnt_path+" ; sortatoms.py POSCAR")
     system("cd "+sin_pnt_path+" ; NIFEmakePOT")
-    system("cd "+sin_pnt_path+" ; qsub qs_vasp")
+    system("cd "+sin_pnt_path+" ; sbatch qs_vasp")
 
 for di in os.listdir(argv[1]):
     path_dir = '{}/{}'.format(argv[1],di)
-    x = read('{}/CONTCAR'.format(path_dir))
-    print(path_dir)
+    try:
+        x = read('{}/CONTCAR'.format(path_dir))
+        print(path_dir)
+    except:
+        print('cannot read here {}'.format(path_dir))
+        continue
 
     nl = NeighborList(natural_cutoffs(x, 1.1), self_interaction=False, bothways = True,skin=0.25)
     nl.update(x)

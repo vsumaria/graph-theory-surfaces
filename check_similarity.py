@@ -103,7 +103,7 @@ for di in os.listdir(argv[1]):
             tot_ener = x.get_potential_energy() * rep
             vac_formation = vac_energy + bulk_formation[x[i].symbol] - tot_ener
             print(vac_formation)
-            out.write(path_dir + '\t' + str(i) + '\t' + x[i].symbol + '\t' + '{},{}'.format(Pd_1,Sn_1) + '\t' + '{},{}'.format(Pd_2,Sn_2) + '\t' + '\t' + '{},{}'.format(Pdo,Sno) + '{}'.format(vac_formation) + '\n')
+            out.write(path_dir + '\t' + str(i) + '\t' + x[i].symbol + '\t' + '{},{}'.format(Pd_1,Sn_1) + '\t' + '{},{}'.format(Pd_2,Sn_2) +  '\t' + '{},{}'.format(Pdo,Sno) +  '\t' + '{}'.format(vac_formation) + '\n')
 
 #### Below is an alternative method to get second shell contribution.
 

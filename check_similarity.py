@@ -16,8 +16,6 @@ from os import system
 
 
 def get_env(full,node_c):
-
-    
     sub_graph = nx.ego_graph(full,node_c,radius =1)
     sub_graph.remove_node(node_c) ## remove self_node
 
@@ -43,23 +41,73 @@ def get_env_2(sub_g1,sub_g2):
                 Snn+=1
     return Pdn,Snn
 
-x = read('test/POSCAR_PdSn_3_5')
-i = int(argv[1])  ### specify the atom around which field of composition has to be estimated
+bulk_formation = {'Pt':-6.06,'Pd':-5.16,'Sn':-3.83}
+print(bulk_formation['Pt'])
+mix = 0.25
+out = open('vacancy_similarity_info','w')
+out.write('Path' + '\t' + 'Unique_atom' + '\t' + 'Unique_atom_type' + '\t' + 'similarity_radius_1' + '\t' + 'similarity_radius_2'+ '\t'+ '\t' + 'similarity_radius_total'+ '\t'  + 'vacancy_formation' + '\n')
 
-node_c = '{}:{}[0,0,0]'.format(x[i].symbol,i)
-print('Performing analysis for node:{}'.format(node_c))
-nl = NeighborList(natural_cutoffs(x, 1.1), self_interaction=False, bothways = True,skin=0.25)
-nl.update(x)
+for di in os.listdir(argv[1]):
+    path_dir = '{}/{}'.format(argv[1],di)
+    try:
+        x = read('{}/OUTCAR'.format(path_dir))
+        print(path_dir)
+    except:
+        print('cannot read here {}'.format(path_dir))
+        continue
 
-full,chem = process_atoms(x, nl, adsorbate_atoms=[], radius=2, grid_n=[1,1,1])
-Pdn,Snn, sub_graph1 = get_env(full,node_c)
-Pd_1 = Pdn/(Pdn+Snn)
-Sn_1 = Snn/(Pdn+Snn)
-print('First shell contribution:')
-print(Pd_1,Sn_1)
 
-##### calculate second shell contribution here #############
+    nl = NeighborList(natural_cutoffs(x, 1.1), self_interaction=False, bothways = True,skin=0.25)
+    nl.update(x)
 
+    full,chem = process_atoms(x, nl, adsorbate_atoms=[], radius=2, grid_n=[1,1,1])
+    unique_sub_graphs = []
+    unique_index = []
+    for i in range(0,len(x)):
+        node_c = '{}:{}[0,0,0]'.format(x[i].symbol,i)
+        sub_graph = nx.ego_graph(full,node_c,radius =2)
+        for j,uni in enumerate(unique_sub_graphs):
+            if compare_chem_envs([sub_graph],[uni]):     ## the bond attribute of the graph edges are being compared here and the symb\ols in the edges matter.
+                print('atom {} chemical environment is similar to atom {}'.format(i,j))
+                break
+        else:
+            print('this atom is unique: {}, and has a symbol: {}'.format(i,x[i].symbol))
+            unique_sub_graphs.append(sub_graph)
+            unique_index.append(i)
+            Pdn,Snn, sub_graph1 = get_env(full,node_c)
+            Pd_1 = Pdn/(Pdn+Snn)
+            Sn_1 = Snn/(Pdn+Snn)
+            print('First shell contribution:')
+            print(Pd_1,Sn_1)
+
+            ##### calculate second shell contribution here #############
+
+            sub_graph2 = nx.ego_graph(full,node_c,radius =2)
+            sub_graph2.remove_node(node_c) ## remove self_node
+            
+            Pdn2,Snn2 = get_env_2(sub_graph1,sub_graph2)
+            Pd_2 = Pdn2/(Pdn2+Snn2)
+            Sn_2 = Snn2/(Pdn2+Snn2)
+            
+            print('Directly from graph analysis, second coordination shell is')
+            print(Pd_2,Sn_2)
+
+            Pdo = (mix*np.mean(Pd_2)+Pd_1)/(1+mix)
+            Sno = (mix*np.mean(Sn_2)+Sn_1)/(1+mix)
+            print('First + second contribution is')
+            print(Pdo,Sno)
+            path_vac = path_dir + '/' + 'single_point_{}'.format(i)
+            outcar_vac = read(path_vac+'/'+'OUTCAR')
+            vac_energy = outcar_vac.get_potential_energy()
+            rep = int(outcar_vac.get_number_of_atoms()/x.get_number_of_atoms())+1
+            tot_ener = x.get_potential_energy() * rep
+            vac_formation = vac_energy + bulk_formation[x[i].symbol] - tot_ener
+            print(vac_formation)
+            out.write(path_dir + '\t' + str(i) + '\t' + x[i].symbol + '\t' + '{},{}'.format(Pd_1,Sn_1) + '\t' + '{},{}'.format(Pd_2,Sn_2) + '\t' + '\t' + '{},{}'.format(Pdo,Sno) + '{}'.format(vac_formation) + '\n')
+
+#### Below is an alternative method to get second shell contribution.
+
+'''
 Pds = []
 Sns = []
 
@@ -82,14 +130,4 @@ print('First + second contribution is')
 Pdo = (mix*np.mean(Pds)+Pd_1)/(1+mix)
 Sno = (mix*np.mean(Sns)+Sn_1)/(1+mix)
 print(Pdo,Sno)
-
-
-sub_graph2 = nx.ego_graph(full,node_c,radius =2)
-sub_graph2.remove_node(node_c) ## remove self_node
-
-Pdn2,Snn2 = get_env_2(sub_graph1,sub_graph2)
-Pd_2 = Pdn2/(Pdn2+Snn2)
-Sn_2 = Snn2/(Pdn2+Snn2)
-
-print('Directly from graph analysis, second coordination shell is')
-print(Pd_2,Sn_2)
+'''

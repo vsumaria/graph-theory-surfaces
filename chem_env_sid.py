@@ -265,7 +265,7 @@ def process_atoms(atoms, nl, adsorbate_atoms=None, radius=2, grid_n=(2, 2, 0), c
 
     full = nx.Graph()
 
-    # This determines how many edge repetitions are added.  Scaling for this will be extremely bad
+    # Grid argument determines how many edge repetitions are added.  Scaling for this will be extremely bad
     # (2 * (n - 1) + 1) ^ 2 scaling
 
     # Add all atoms to graph
@@ -285,15 +285,15 @@ def process_atoms(atoms, nl, adsorbate_atoms=None, radius=2, grid_n=(2, 2, 0), c
                     continue
                 if not (-grid_n[2] <= oz + z <= grid_n[2]):
                     continue
-                # This line ensures that only surface adsorbate bonds are accounted for
+                # This line ensures that only surface adsorbate bonds are accounted for that are less than 2.5 Å
                 if distances[index][neighbor] > 2.5 and (bool(index in adsorbate_atoms) ^ bool(neighbor in adsorbate_atoms)):
                     continue
                 add_atoms_edge(full, atoms, index, neighbor, (x, y, z), (x + ox, y + oy, z + oz), adsorbate_atoms)
 
     # Add the case of surface-ads + ads-ads edges to clean graph case here
     if clean_graph:
-        edges = [(u, v, d) for u, v,d in full.edges.data() if d["dist"] < 2]    
-        nodes = [(n, d) for n, d in full.nodes.data() if d["index"] in adsorbate_atoms]
+        edges = [(u, v, d) for u, v,d in full.edges.data() if d["dist"] < 2]    ### Read all the edges, that are between adsorbate and surface (dist<2 condition)
+        nodes = [(n, d) for n, d in full.nodes.data() if d["index"] in adsorbate_atoms]    ### take all the nodes that have an adsorbate atoms
         full=nx.Graph(clean_graph)
         full.add_nodes_from(nodes)
         full.add_edges_from(edges)
@@ -320,7 +320,7 @@ def process_atoms(atoms, nl, adsorbate_atoms=None, radius=2, grid_n=(2, 2, 0), c
         
         chem_envs.append(new_ads)
 
-    chem_envs = unique_adsorbates(chem_envs)
+    chem_envs = unique_adsorbates(chem_envs)  
 
     chem_envs.sort(key=lambda x: len(x.edges()))
 
@@ -401,11 +401,11 @@ if __name__ == "__main__":
         if len(adsorbate_atoms):
             raise Exception('Clean atoms should not have adsorbate atoms')
         args.clean, chem_env = process_atoms(clean_atoms, nl, adsorbate_atoms=adsorbate_atoms, 
-                                    radius=args.radius, grid_n=[int(grid) for grid in args.grid.split(",")])
+                                    radius=args.radius, grid_n=[int(grid) for grid in args.grid.split(",")])   ## store the full graph for clean surface, to be used later
 
     for atoms in all_atoms:
         try:
-            energies.append(atoms.get_potential_energy())
+            energies.append(atoms.get_potential_energy())  ## Attempt to read the OUTCAR here
         except:
             energies.append(float('inf'))
 
@@ -414,12 +414,14 @@ if __name__ == "__main__":
         nl.update(atoms)
         adsorbate_atoms = [atom.index for atom in atoms if atom.symbol in adsorbate_elements]
         full, chem_env = process_atoms(atoms, nl, adsorbate_atoms=adsorbate_atoms, 
-                                       radius=args.radius, grid_n=[int(grid) for grid in args.grid.split(",")],clean_graph=args.clean)
+                                       radius=args.radius, grid_n=[int(grid) for grid in args.grid.split(",")],clean_graph=args.clean)  ## get the full graph and the chem_env for all the adsorbates found
         chem_envs.append(chem_env)
 
         labels = [None]*len(chem_env)
         for index, graph in enumerate(chem_env):
             labels[index] = {node:str(len([edge for edge in full[node] if edge.split(":")[0] not in adsorbate_elements])) for node in graph.nodes()}
+
+    ###### This next condition, finds the unique configs amongst the OUTCARS/ atoms object provided and arranges them according to ascending order of energies
     if args.unique:
         unique, groups = unique_chem_envs(chem_envs, list(zip(energies, filenames)))
         print("Outputting the lowest energy unique configurations")
@@ -436,5 +438,6 @@ if __name__ == "__main__":
                     print("-> {}: {} eV".format(duplicate[1], duplicate[0]))
     if args.view_adsorbates:
         print('Opening graph for viewing')
-        print(chem_env)
+        #print(chem_env)
+        #print(labels)
         draw_atomic_graphs(chem_env, atoms=atoms, labels=labels)

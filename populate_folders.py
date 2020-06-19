@@ -7,14 +7,20 @@ from itertools import combinations
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
 from sys import argv
-from os import system
+from os import system, path
 from chem_env_sid import process_atoms, process_site, unique_chem_envs, draw_atomic_graphs, compare_chem_envs
 from pathlib import Path
 import os
 
-def make_fol(path,atoms):
-    os.makedirs(path)
-    store_path = path + '/' + 'POSCAR'
+def make_fol(path_dir,atoms):
+    os.makedirs(path_dir)
+    store_path = path_dir + '/' + 'POSCAR'
+    atoms.write(store_path,format='vasp')
+
+def make_fol_duplicate(j,path_dir,atoms):
+    if not path.isdir(path_dir):
+        os.makedirs(path_dir)
+    store_path = path_dir + '/' + 'POSCAR_{}'.format(j)
     atoms.write(store_path,format='vasp')
 
 
@@ -34,7 +40,7 @@ if __name__ == "__main__":
     unique_id = []
     for i,atoms in enumerate(all_atoms):
 ################# These can be added in as arg parsers ##################
-        ads = read("NO.POSCAR")
+        ads = read("OH.POSCAR")
         surface_atoms = ["Pt", "Sn", "Pd"]
         radii_multiplier = 1.1
         skin_arg = 0.25
@@ -55,13 +61,13 @@ if __name__ == "__main__":
             if compare_chem_envs(envs,other_chems):
                 print('duplicate with {}'.format(unique_id[j]))
                 Path("duplicate").mkdir(parents=True, exist_ok=True)
-                path = ('duplicate' + '/' + 'duplicate_with_{}'.format(j))
-                make_fol(path,atoms)
+                path_dir = ('duplicate' + '/' + 'duplicate_with_{}'.format(j))
+                make_fol_duplicate(j,path_dir,atoms)
                 break
         else:
             Path("jobs").mkdir(parents=True, exist_ok=True)
-            path = ('jobs' + '/' + '{}'.format(i))
-            make_fol(path,atoms)
+            path_dir = ('jobs' + '/' + '{}'.format(i))
+            make_fol(path_dir,atoms)
             unique.append(envs)
             unique_id.append(i)
             #system("cp -r" 'i' "unique/")

@@ -10,7 +10,10 @@ Welcome to SurfGraph's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
+   Installation <Installation>
+   Usage
+   Examples
+   Theory <Theory>
 
 Indices and tables
 ==================

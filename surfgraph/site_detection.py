@@ -1,34 +1,20 @@
-import numpy as np
 from numpy.linalg import norm
-from ase.data import covalent_radii as covalent
 from ase.neighborlist import NeighborList
 from itertools import combinations
 from ase.constraints import constrained_indices
-import networkx as nx
+
+from chemical_environment import process_atoms
+from chemical_environment import process_site
+from chemical_environment import unique_chem_envs
+from chemical_environment import bond_match
+from helpers import draw_atomic_graphs
+from helpers import normalize
+from helpers import offset_position
+
 import networkx.algorithms.isomorphism as iso
+import numpy as np
+import networkx as nx
 
-from chem_env_sid import process_atoms, process_site, unique_chem_envs, draw_atomic_graphs
-
-bond_match = iso.categorical_edge_match('bond', '')
-
-def natural_cutoffs(atoms, multiplier=1.1):
-    """Generate a neighbor list cutoff for every atom"""
-    return [covalent[atom.number] * multiplier for atom in atoms]
-
-def normalize(vector):
-    return vector / norm(vector) if norm(vector) != 0 else vector * 0
-
-def relative_position(atoms, neighbor, offset):
-   return atoms[neighbor].position + np.dot(offset, atoms.get_cell())
-
-def draw_networkx_many(graphs):
-    import matplotlib.pyplot as plt
-    for index, graph in enumerate(graphs):
-        plt.figure(index, figsize=(2.5, 2.5))
-        plt.axis('off')
-        plt.title("Graph Index: {}".format(index))
-        nx.draw_networkx(graph)
-    plt.show()
 
 def generate_normals(atoms, surface_normal=0.5, normalize_final=True, adsorbate_atoms=[]):
     normals = np.zeros(shape=(len(atoms), 3), dtype=float)
@@ -82,7 +68,7 @@ def generate_site_type(atoms, surface_mask, normals, coordination, unallowed_ele
         for index, (start, end) in enumerate(zip(cycle[:-1], cycle[1:])):
             for neighbor, offset in zip(*nl.get_neighbors(start)):
                 if neighbor == end:
-                    tracked += relative_position(atoms, neighbor, offset) - atoms[start].position
+                    tracked += offset_position(atoms, neighbor, offset) - atoms[start].position
                     known[index + 1] = tracked
 
         average = np.average(known, axis=0)
@@ -164,9 +150,9 @@ if __name__ == "__main__":
     movie = []
     all_unique = []
 
-    for i in glob('*/'):
+    for i in argv[1:]:
         dire = i
-        atoms = read(i+"/"+"POSCAR")
+        atoms = read(i)
 ################# These can be added in as arg parsers ##################
         ads = read("NO.POSCAR")
         surface_atoms = ["Pt", "Sn", "Pd"]
@@ -209,7 +195,9 @@ if __name__ == "__main__":
                     if site.adsorb(new, ads, adsorbate_atoms) < min_ads_dist:
                         break
                     else:
-                        Path("temp_ads").mkdir(parents=True, exist_ok=True)
-                        write("temp_ads/{}-{}.POSCAR_{}".format(coord, index,i.split('/')[0]), new)
+                        #Path("temp_ads").mkdir(parents=True, exist_ok=True)
+                        #write("temp_ads/{}-{}.POSCAR_{}".format(coord, index,i.split('/')[0]), new)
                         movie.append(new)
                         all_unique.append(site)
+
+        view(movie)

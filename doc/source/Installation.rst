@@ -30,6 +30,6 @@ This is also a good time to ensure the tests pass correctly.  The tests should b
 
 **TODO: This is currently not implemented.**
 
-.. code-block:: python
+.. code-block:: bash
 
     python -m surfgraph

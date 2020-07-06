@@ -17,14 +17,14 @@ Full Surface Graph
 
 Initially, a surface graph must be created that encompasses the entire unit cell.  
 
-First, nodes are added for each atom within the cell as well as repetitions in a user specified grid (grid_n) in order to unwrap periodic boundary conditions.  Then edges are added for each bond ("bond") and the bonds are labelled in the following format with the elements in alphabetical order: AB (Example: PtSn). Edges are also assigned two distances for chemical environment analysis.  The distance ("dist") is defined as 0, 1, or 2 based on how many surface atoms are involved as well as an extra distance ("ads_only") which is either 0 or 2.
+First, nodes are added for each atom within the cell as well as repetitions in a user specified grid (grid_n) in order to unwrap periodic boundary conditions. 'grid_n' dictates how many periodic repetitions are desired, though we have found that a large grid is not favorable from a computing stand point, and for cell sizes greater or equal to a 3x3, 1-2 repetitions are sufficient. Then edges are added for each bond ("bond") and the bonds are labelled in the following format with the elements in alphabetical order: AB (Example: PtSn). Edges are also assigned two distances for chemical environment analysis.  The distance ("dist") is defined as 0, 1, or 2 based on how many surface atoms are involved as well as an extra distance ("ads_only") which is either 0 or 2.
 
 * If the bond is between ads-ads, both distances are set to 0.
 * If the bond is between surface-surface, both distances are set to 2.
 * If the bond is between ads-surface, "dist" is set to 1 and "ads_only" is set to 2.
 
 **TODO: Review if "ads_only" is actually needed.**
-
+**TODO Tristan: explain how the radius of the graph makes use of this parameter, and how 1.5 captures, the 1st shell surface atoms and then only the ads attached to them**
 *********************
 Chemical Environments
 *********************

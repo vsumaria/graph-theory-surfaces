@@ -2,12 +2,14 @@
 Surface Graphs
 ==============
 
-Surface graphs are made to accomplish two primary tasks.
+Surface graphs are made to accomplish the following tasks:
 
-* Unwrap the full connectivity of the cell into a repeating non-periodic graph to simplify further analysis and make visualization easier.
-* Isolate adsorbates and establish the local chemical environment based on a distance criteria.
- * This can be used for further post processing analysis for multidentate adsorbates.
- * This can also be used to compare different calculations for uniqueness of adsorbate configurations.
+* Unwrap the full connectivity for a surface type atomic object into a repeating non-periodic graph to simplify further analysis and make visualization easier.
+* These graph representations can then identify unique locations on the graph as a function of the chemical environment of the given site. This can then be used:
+ * To identify unique starting positions for an adsorbate on a given graph.
+ * To identify unique adsorbate configurations amongst a set of configurations.
+These two capabilities can be synergistically utilized to enumerate high coverage configurations, as well as, finding unique configurations post - simulations.  
+
 
 ******************
 Full Surface Graph

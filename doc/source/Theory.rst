@@ -47,7 +47,7 @@ Chemical Environments
 The chemical environment is defined as the ego graph with a given radius which is representative of the number of surface coordination shells that should be captured.  A shell radius of 0 will capture only the adsorbate and its direct connections to the surface.  A shell radius of >1 will capture that many coordination shells on the surface.  This is implemented by taking and ego graph from some atom of the adsorbate with a scaled radius.  The graph radius is given as twice the shell radius plus one.  This results in the following behavior.
 
 1. First the entire adsorbate is captured for free since the distance is given as 0.
-2. The plus one of the radius will then capture the surface atoms bonded to the adsorbate, given that this is almost never not desired.  This should result in an even radius leftover for capturing shells on the surface.
+2. The plus one of the radius will then capture the surface atoms bonded to the adsorbate.  This should result in an even radius leftover for capturing shells on the surface (*Can you explain this better?*).
 3. Surface atoms will then be captured by decrementing the radius by 2 each time.  This should always result in an even number of leftover radius.
 4. If another adsorbate is found, the leftover radius is decremented by 1, the entire adsorbate is captured for free, then it is decremeneted by 1 again as it captures all the surface atoms.  This also results in an even number of leftover radius.
 

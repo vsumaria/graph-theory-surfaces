@@ -24,12 +24,14 @@ First, nodes are added for each atom within the cell as well as repetitions in a
 * If the bond is between ads-surface, "dist" is set to 1 and "ads_only" is set to 2.
 
 Graphs offer the flexibility to add other important properties to the nodes and the edges as desired by the user. For example, the distance between the surface atoms can be a useful edge property to store, or the coordination number of the surface site can be another important node property to store. Some interesting node and edge properties are listed as follows:
+ 
 * Node Properties:
   * Coordination number
   * D-band center
   * Electronegativity
   * number of valence electrons
-* Edge Properties
+
+* Edge Properties:
   * Surface atoms bond distance
   * Type of bond: surface-surface, surface-ads, ads-ads, H--bond (some of this is captured in the "dist" parameter above)
   * bond energy of a given bond: this can be used to store entities like ads_energy between ads and surface atoms, vacancy formation energy between surface-surface atoms.

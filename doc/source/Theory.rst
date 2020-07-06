@@ -32,7 +32,7 @@ Graphs offer the flexibility to add other important properties to the nodes and 
    * number of valence electrons
 
 * Edge Properties:
-   * Surface atoms bond distance
+   * Aomt-atom bond distance
    * Type of bond: surface-surface, surface-ads, ads-ads, H--bond (some of this is captured in the "dist" parameter above)
    * bond energy of a given bond: this can be used to store entities like ads_energy between ads and surface atoms, vacancy formation energy between surface-surface atoms.
 

@@ -24,7 +24,8 @@ First, nodes are added for each atom within the cell as well as repetitions in a
 * If the bond is between ads-surface, "dist" is set to 1 and "ads_only" is set to 2.
 
 **TODO: Review if "ads_only" is actually needed.**
-**TODO Tristan: explain how the radius of the graph makes use of this parameter, and how 1.5 captures, the 1st shell surface atoms and then only the ads attached to them**
+**TODO: Tristan explain how the radius of the graph makes use of this parameter, and how 1.5 captures, the 1st shell surface atoms and then only the ads attached to them**
+
 *********************
 Chemical Environments
 *********************

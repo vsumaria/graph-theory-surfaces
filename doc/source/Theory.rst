@@ -8,7 +8,7 @@ Surface graphs are made to accomplish the following tasks:
 * These graph representations can then identify unique locations on the graph as a function of the chemical environment of the given site. This can then be used:
  * To identify unique starting positions for an adsorbate on a given graph.
  * To identify unique adsorbate configurations amongst a set of configurations.
-These two capabilities can be synergistically utilized to enumerate high coverage configurations, as well as, finding unique configurations post - simulations.  
+These two capabilities can be synergistically utilized to enumerate high coverage configurations, as well as, for finding unique configurations post - simulations.  
 
 
 ******************

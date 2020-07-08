@@ -1,5 +1,5 @@
 ==============
-Surface Graphs
+Surface Graphs: Theory
 ==============
 
 Surface graphs are made to accomplish the following tasks:

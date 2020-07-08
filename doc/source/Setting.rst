@@ -18,5 +18,4 @@ These are settings that the user need to keep in mind, while attempting to gener
  * Radius: This parameter determines the number of nearest neighbor shells that are to be considered in a given chemical environment. As our algorithm is geared towards catalysis, this parameter for the case of the graph constructed around a given adsorbate, will represent the number of neighboring surface shells that are desired by the user to capture the chemical environment of the adsorbate.   
   * A radius of '0' represents only the adsorbate and the surface atoms that surround it. This radius, will help aid in finding the type of active site for the given adsorbate.
   * Radius of '1' represents a graph with the atoms encompassing the active site as well as the nearest neighbors of the active sites as well.
-  
-   A 0.5 increament in the radii will capture any adsorbate atoms that are bound to surface nodes present in the graph. 
+  * A 0.5 increament in the radii will capture any adsorbate atoms that are bound to surface nodes present in the graph. 

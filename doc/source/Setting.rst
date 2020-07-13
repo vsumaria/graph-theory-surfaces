@@ -32,9 +32,11 @@ These are settings that the user need to keep in mind, while attempting to gener
    * Type of bond: surface-surface, surface-ads, ads-ads, H--bond (some of this is captured in the "dist" parameter above)
    * bond energy of a given bond: this can be used to store entities like ads_energy between ads and surface atoms, vacancy formation energy between surface-surface atoms.
 
-******************************
+***********************
 Graph analysis settings
-******************************
+***********************
 After generating a full graph, and the subsequent chemical environments for all the adsorbate atoms, these can then be used in following ways:
+
 * Unique chemical environments: For the case of complex adsorbate geometries such as high coverages of adsorbates and multi-dentate adsorbates, the graph representing the chemical environments of adsorbates can be used to systematically find unique chemical environments. Consider the case of 3 mono-dentate NO adsorbates on the surface. To estimate if this particular high coverage configuration is unique when compared to other 3 NO configurations, the chemical environments for each of the NO adsorbate in the case of interest, will be compared with the chemical environments of other cases having 3 NO. For the configuration to be unique, atleast one chemical environment of the three should be different for all the 3 NO cases in consideration. ** TODO: PUT A FIGURE TO EXPLAIN ** 
+
 * Different settings for uniqueness: The most important setting for determining the uniqueness, with the above rule is the radius of the chemical environment considered. As explained in 'Graph generation settings' section above, the radius is the number of shells considered around the adsorbate. Therefore, larger the number of shells, the higher the number of interactions that are considered. Therefore, the radius can in principle be large enough such as 4-5, such that for a given adsorbate, it captures all the atoms present on the surface model and can be used to estimate global minimum configurations, for that given unit cell. However, we have found that adsorption energies are not affected too much outside of 2-3 shells and that is the standard setting. 

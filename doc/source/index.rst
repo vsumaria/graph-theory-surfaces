@@ -11,7 +11,7 @@ Welcome to SurfGraph's documentation!
    :caption: Contents:
 
    Installation <Installation>
-   Usage <Usage>
+   Settings <Settings>
    Examples
    Theory <Theory>
 

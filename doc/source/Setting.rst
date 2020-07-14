@@ -50,6 +50,5 @@ This section explains some of the settings that we have found useful for differe
 
 * Setting to consider while considering high coverage configurations:
 Presented here is a list of settings, that we have found useful to systematically find high coverage configurations for different kinds of surface models:
- * Ads-Ads distance: This setting is very system dependent and depends on the nearest distance of two adjacent adsorption site. For example on Pt3Sn(111)
- this distance is of the order of 2.4 Angstroms, while on a Pt(100) surface, which is more open, a cutoff of about 2 Angstrom is sufficient, as the sites are inherently farther apart.
+ * Ads-Ads distance: This setting is very system dependent and depends on the nearest distance of two adjacent adsorption site. For example on Pt3Sn(111), this distance is of the order of 2.4 Angstroms, while on a Pt(100) surface, which is more open, a cutoff of about 2 Angstrom is sufficient, as the sites are inherently farther apart.
  * Explicitely constraining non-surface layers on non-terrace models: On non-terrace models like steps and kinks, we have found that the algorithm most efficiently works if the non-surface atoms (starting from the second layer) are constrained. This helps as the normals method used to find surface atoms, can fail in defected surfaces, as some sub-surface atoms can have non-zero normal components, especially post-relaxation.

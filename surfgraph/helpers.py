@@ -1,4 +1,7 @@
 import networkx as nx
+from numpy.linalg import norm
+from ase.data.colors import jmol_colors
+import numpy as np
 
 def grid_iterator(grid):
     """Yield all of the coordinates in a 3D grid as tuples

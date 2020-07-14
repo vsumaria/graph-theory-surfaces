@@ -1,5 +1,6 @@
 from ase.data.colors import jmol_colors
 from ase.neighborlist import NeighborList, natural_cutoffs
+from surfgraph.helpers import grid_iterator
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
 import numpy as np
@@ -68,7 +69,7 @@ def compare_chem_envs(chem_envs1, chem_envs2):
 
     return True
 
-def unique_chem_envs(chem_envs_groups, metadata=None, verbose=True):
+def unique_chem_envs(chem_envs_groups, metadata=None, verbose=False):
     """Given a list of chemical environments, find the unique
     environments and keep track of metadata if required.
 
@@ -113,6 +114,8 @@ def unique_chem_envs(chem_envs_groups, metadata=None, verbose=True):
                 unique_indices.append(index)
                 break
         else: # Was unique
+            if verbose:
+                print("")
             unique.append(([index], env))
     
     # Zip trick to split into two lists to return
@@ -170,7 +173,7 @@ def process_site(atoms, full, nl, site, radius=3):
     full.remove_node("X")
     return site_graph
 
-def process_atoms(atoms, nl, adsorbate_atoms=None, radius=2, grid_n=(2, 2, 0), clean_graph=None):
+def process_atoms(atoms, nl, adsorbate_atoms=None, radius=2, grid=(2, 2, 0), clean_graph=None):
     """Takes an ase Atoms object and processes it into a full graph as well as
     a list of adsorbate graphs.  This allows for the further post processing
     of the graph to identify chemical environments, chemical identity, and
@@ -181,10 +184,10 @@ def process_atoms(atoms, nl, adsorbate_atoms=None, radius=2, grid_n=(2, 2, 0), c
         nl (ase.neighborlist.Neighborlist): A neighborlist built on the atoms object
         adsorbate_atoms (list[int]): The indices of adsorbate atoms
         radius (int): The radius for adsorbate graphs, this is a tunable parameter
-        grid_n (tuple[int]): (X,Y,Z) repetitions for PBC.  This should be raised until
-                             graphs do not form loops across PBC.  A good starting point
-                             for surface DFT is (2,2,0) but this may change if radius is
-                             large.
+        grid (tuple[int]): (X,Y,Z) repetitions for PBC.  This should be raised until
+                           graphs do not form loops across PBC.  A good starting point
+                           for surface DFT is (2,2,0) but this may change if radius is
+                           large.
 
     Returns:
         networkx.Graph: The full graph containing every atom
@@ -200,20 +203,20 @@ def process_atoms(atoms, nl, adsorbate_atoms=None, radius=2, grid_n=(2, 2, 0), c
 
     # Add all atoms to graph
     for index, atom in enumerate(atoms):
-        for x, y, z in grid_iterator(grid_n):
+        for x, y, z in grid_iterator(grid):
             add_atoms_node(full, atoms, index, (x, y, z))   
 
     # Add all edges to graph
     for index, atom in enumerate(atoms):
-        for x, y, z in grid_iterator(grid_n):
+        for x, y, z in grid_iterator(grid):
             neighbors, offsets = nl.get_neighbors(index)
             for neighbor, offset in zip(neighbors, offsets):
                 ox, oy, oz = offset
-                if not (-grid_n[0] <= ox + x <= grid_n[0]):
+                if not (-grid[0] <= ox + x <= grid[0]):
                     continue
-                if not (-grid_n[1] <= oy + y <= grid_n[1]):
+                if not (-grid[1] <= oy + y <= grid[1]):
                     continue
-                if not (-grid_n[2] <= oz + z <= grid_n[2]):
+                if not (-grid[2] <= oz + z <= grid[2]):
                     continue
                 # This line ensures that only surface adsorbate bonds are accounted for that are less than 2.5 Å
                 if distances[index][neighbor] > 2.5 and (bool(index in adsorbate_atoms) ^ bool(neighbor in adsorbate_atoms)):
@@ -255,119 +258,3 @@ def process_atoms(atoms, nl, adsorbate_atoms=None, radius=2, grid_n=(2, 2, 0), c
     chem_envs.sort(key=lambda x: len(x.edges()))
 
     return full, chem_envs
-
-
-if __name__ == "__main__":
-    from sys import argv
-    from ase.io import read
-    import argparse
-
-    parser = argparse.ArgumentParser(
-        description='Some command line utilities for atomic graphs')
-    parser.add_argument(
-        '--radius', '-radius', '-r',
-        type=int, default=2,
-        help='Sets the graph radius, this can be tuned for different behavior')
-    parser.add_argument(
-        '--mult', '-mult', '-m',
-        type=float, default=1.1,
-        help='Sets the radii multiplier for the neighborlist')
-    parser.add_argument(
-        '--skin', '-skin', '-s',
-        type=float, default=0.25,
-        help='Sets the skin for the neighborlist, \
-              this is a constant offset extending a bond')
-    parser.add_argument(
-        '--adsorbate-atoms', '-adsorbate-atoms', '-a',
-        type=str, default='',
-        help='Comma delimited list of elements to be considered adsorbate')
-    parser.add_argument(
-        '--grid', '-grid', '-g',
-        type=str, default='2,2,0',
-        help='Grid for PBC as comma delimited list, default is for surface')
-    parser.add_argument(
-        '--view-adsorbates', '-view-adsorbates', 
-        '--view', '-view', '-v',
-        action='store_const',
-        const=True, default=False,
-        help='Displays the adsorbates using matplotlib')
-    parser.add_argument(
-        '--unique', '-unique', '-u',
-        action='store_const',
-        const=True, default=False,
-        help='Outputs the unique chemical environments')
-    parser.add_argument(
-        'filenames',
-        type=str,
-        nargs='+',
-        help='Atoms objects to process')
-    parser.add_argument(
-        '--clean', '-clean','-c', 
-        type=str, default=None,
-        help='Use clean atoms object')
-    args = parser.parse_args()
-
-    radii_multiplier = args.mult
-    adsorbate_elements = args.adsorbate_atoms.split(",")
-
-    all_atoms = []
-    filenames = []
-
-    for filename in args.filenames:
-        try:
-            all_atoms.append(read(filename))
-            filenames.append(filename)
-        except Exception as e:
-            print("{} failed to read".format(filename))
-
-    chem_envs = []
-    energies = []
-    if args.clean:
-        clean_atoms = read(args.clean)
-        nl = NeighborList(natural_cutoffs(clean_atoms, radii_multiplier), self_interaction=False, 
-                          bothways=True, skin=args.skin)
-        nl.update(clean_atoms)
-        adsorbate_atoms = [atom.index for atom in clean_atoms if atom.symbol in adsorbate_elements]
-        if len(adsorbate_atoms):
-            raise Exception('Clean atoms should not have adsorbate atoms')
-        args.clean, chem_env = process_atoms(clean_atoms, nl, adsorbate_atoms=adsorbate_atoms, 
-                                    radius=args.radius, grid_n=[int(grid) for grid in args.grid.split(",")])   ## store the full graph for clean surface, to be used later
-
-    for atoms in all_atoms:
-        try:
-            energies.append(atoms.get_potential_energy())  ## Attempt to read the OUTCAR here
-        except:
-            energies.append(float('inf'))
-
-        nl = NeighborList(natural_cutoffs(atoms, radii_multiplier), self_interaction=False, 
-                          bothways=True, skin=args.skin)
-        nl.update(atoms)
-        adsorbate_atoms = [atom.index for atom in atoms if atom.symbol in adsorbate_elements]
-        full, chem_env = process_atoms(atoms, nl, adsorbate_atoms=adsorbate_atoms, 
-                                       radius=args.radius, grid_n=[int(grid) for grid in args.grid.split(",")],clean_graph=args.clean)  ## get the full graph and the chem_env for all the adsorbates found
-        chem_envs.append(chem_env)
-
-        labels = [None]*len(chem_env)
-        for index, graph in enumerate(chem_env):
-            labels[index] = {node:str(len([edge for edge in full[node] if edge.split(":")[0] not in adsorbate_elements])) for node in graph.nodes()}
-
-    ###### This next condition, finds the unique configs amongst the OUTCARS/ atoms object provided and arranges them according to ascending order of energies
-    if args.unique:
-        unique, groups = unique_chem_envs(chem_envs, list(zip(energies, filenames)))
-        print("Outputting the lowest energy unique configurations")
-        groups = [sorted(group) for group in groups]
-        for group in sorted(groups):
-            if group[0][0] == float('inf'):
-                print("{}: Unknown energy, {} duplicates".format(group[0][1], len(group) - 1))
-            else:
-                print("{}: {} eV, {} duplicates".format(group[0][1], group[0][0], len(group) - 1))
-            for duplicate in group[1:]:
-                if duplicate[0] == float('inf'):
-                    print("-> {}: Unknown energy".format(duplicate[1]))
-                else:
-                    print("-> {}: {} eV".format(duplicate[1], duplicate[0]))
-    if args.view_adsorbates:
-        print('Opening graph for viewing')
-        #print(chem_env)
-        #print(labels)
-        draw_atomic_graphs(chem_env, atoms=atoms, labels=labels)

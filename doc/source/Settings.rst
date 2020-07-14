@@ -27,25 +27,25 @@ These are settings that the user need to keep in mind, while attempting to gener
 
   + A 0.5 increament in the radii will capture any adsorbate atoms that are bound to surface nodes present in the graph. 
 
-  * Node and Edge Properties: Graphs are highly versatile representations. An added benefit, which, makes them very useful for atomic scale simulations, are the node and edge attributes. For example, the distance between the surface atoms can be a useful edge property to store, or the coordination number of the surface site can be another important node property to store. These can be used to conviniently store important atomic information. A list of useful node and edge attributes is given below:
+ * Node and Edge Properties: Graphs are highly versatile representations. An added benefit, which, makes them very useful for atomic scale simulations, are the node and edge attributes. For example, the distance between the surface atoms can be a useful edge property to store, or the coordination number of the surface site can be another important node property to store. These can be used to conviniently store important atomic information. A list of useful node and edge attributes is given below:
  
   + Node Properties:
  
-  * Coordination number
+    * Coordination number
 
-  * D-band center
+    * D-band center
 
-  * Electronegativity
+    * Electronegativity
 
-  * number of valence electrons
+    * number of valence electrons
 
   + Edge Properties:
 
-  * Atom-atom bond distance
+    * Atom-atom bond distance
 
-  * Type of bond: surface-surface, surface-ads, ads-ads, H--bond (some of this is captured in the "dist" parameter above)
+    * Type of bond: surface-surface, surface-ads, ads-ads, H--bond (some of this is captured in the "dist" parameter above)
 
-  * bond energy of a given bond: this can be used to store entities like ads_energy between ads and surface atoms, vacancy formation energy between surface-surface atoms.
+    * bond energy of a given bond: this can be used to store entities like ads_energy between ads and surface atoms, vacancy formation energy between surface-surface atoms.
 
 ***********************
 Graph analysis settings

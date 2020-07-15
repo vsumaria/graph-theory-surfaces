@@ -237,7 +237,10 @@ def process_atoms(atoms, nl, adsorbate_atoms=None, radius=2, grid=(2, 2, 0), cle
         print(O_H_bonded)
         for ind,i in enumerate(full.nodes(data=True)):
             if i[1]['index'] in O_H_bonded:
-                full.nodes[str(list(full.nodes)[ind])]['H_bond'] += 1
+                H_bonds = O_H_bonded.count(i[1]['index'])
+                print(H_bonds)
+                #print(full.nodes[str(list(full.nodes)[ind])])
+                full.nodes[str(list(full.nodes)[ind])]['H_bond'] = H_bonds
 
     # Add all edges to graph
     for index, atom in enumerate(atoms):

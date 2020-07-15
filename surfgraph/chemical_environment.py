@@ -192,7 +192,7 @@ def find_H_bonds(atoms, adsorbate_atoms):
     for index in adsorbate_atoms:
         if atoms[int(index)].symbol == 'O':
             for index_2 in adsorbate_atoms:
-            if atoms[int(index_2)].symbol == 'H' and (1.5 < atoms.get_distance(index,index_2,mic=True) < 2.1):
+                if atoms[int(index_2)].symbol == 'H' and (1.5 < atoms.get_distance(index,index_2,mic=True) < 2.1):
                     print(index,index_2)
                     if check_H_bond_angle(int(index_2),int(index),atoms,adsorbate_atoms):
                         O_H_bonded.append(index)

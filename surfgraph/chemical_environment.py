@@ -173,7 +173,33 @@ def process_site(atoms, full, nl, site, radius=3):
     full.remove_node("X")
     return site_graph
 
-def process_atoms(atoms, nl, adsorbate_atoms=None, radius=2, grid=(2, 2, 0), clean_graph=None):
+def check_H_bond_angle(H_index, O_index, atoms,adsorbate_atoms):
+    for index in adsorbate_atoms:
+        if atoms[int(index)].symbol == 'O' and (atoms.get_distance(index,H_index,mic=True)<1.3):
+            print('The donor H is attached to a Oxygen:{}'.format(index))
+            donor_O = int(index)
+            angle = atoms.get_angle(donor_O,H_index,O_index,mic=True)
+            print('the found angle is {}'.format(abs(180-abs(angle))))
+            if abs(180-abs(angle)) < 40:   #### set some tolerance for how much the bond is allowed to deviate
+                return True
+            else:
+                return False
+
+
+
+def find_H_bonds(atoms, adsorbate_atoms):
+    O_H_bonded = []
+    for index in adsorbate_atoms:
+        if atoms[int(index)].symbol == 'O':
+            for index_2 in adsorbate_atoms:
+            if atoms[int(index_2)].symbol == 'H' and (1.5 < atoms.get_distance(index,index_2,mic=True) < 2.1):
+                    print(index,index_2)
+                    if check_H_bond_angle(int(index_2),int(index),atoms,adsorbate_atoms):
+                        O_H_bonded.append(index)
+    return O_H_bonded
+
+
+def process_atoms(atoms, nl, adsorbate_atoms=None, radius=2, grid=(2, 2, 0), clean_graph=None, H_bond=False):
     """Takes an ase Atoms object and processes it into a full graph as well as
     a list of adsorbate graphs.  This allows for the further post processing
     of the graph to identify chemical environments, chemical identity, and
@@ -205,6 +231,13 @@ def process_atoms(atoms, nl, adsorbate_atoms=None, radius=2, grid=(2, 2, 0), cle
     for index, atom in enumerate(atoms):
         for x, y, z in grid_iterator(grid):
             add_atoms_node(full, atoms, index, (x, y, z))   
+
+    if H_bond == True:
+        O_H_bonded = find_H_bonds(atoms, adsorbate_atoms)
+        print(O_H_bonded)
+        for ind,i in enumerate(full.nodes(data=True)):
+            if i[1]['index'] in O_H_bonded:
+                full.nodes[str(list(full.nodes)[ind])]['H_bond'] += 1
 
     # Add all edges to graph
     for index, atom in enumerate(atoms):

@@ -180,7 +180,7 @@ def check_H_bond_angle(H_index, O_index, atoms,adsorbate_atoms):
             donor_O = int(index)
             angle = atoms.get_angle(donor_O,H_index,O_index,mic=True)
             print('the found angle is {}'.format(abs(180-abs(angle))))
-            if abs(180-abs(angle)) < 40:   #### set some tolerance for how much the bond is allowed to deviate
+            if abs(180-abs(angle)) < 80:   #### set some tolerance for how much the bond is allowed to deviate
                 return True
             else:
                 return False

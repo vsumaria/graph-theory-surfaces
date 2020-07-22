@@ -185,18 +185,36 @@ def check_H_bond_angle(H_index, O_index, atoms,adsorbate_atoms):
             else:
                 return False
 
-
+def H2O_angle_check(H2O_array,atoms):
+    angle = atoms.get_angle(H2O_array[1],H2O_array[0],H2O_array[2],mic=True)
+    print('the found angle is {}'.format(abs(angle)))
+    if 90<abs(angle)<120:
+        return True
+    else:
+        return False
 
 def find_H_bonds(atoms, adsorbate_atoms):
     O_H_bonded = []
+    H2O_mol = []
     for index in adsorbate_atoms:
+        H2O_array = []
+
         if atoms[int(index)].symbol == 'O':
+            H2O_array.append(index)
             for index_2 in adsorbate_atoms:
-                if atoms[int(index_2)].symbol == 'H' and (1.5 < atoms.get_distance(index,index_2,mic=True) < 2.1):
+                if atoms[int(index_2)].symbol == 'H' and (1.3 < atoms.get_distance(index,index_2,mic=True) < 2.1):
                     print(index,index_2)
                     if check_H_bond_angle(int(index_2),int(index),atoms,adsorbate_atoms):
                         O_H_bonded.append(index)
-    return O_H_bonded
+
+                if atoms[int(index_2)].symbol == 'H' and (atoms.get_distance(index,index_2,mic=True) < 1.2):
+                    print('adding {} to H2O array'.format(index_2))
+                    H2O_array.append(index_2)
+
+            if len(H2O_array) == 3 and H2O_angle_check(H2O_array,atoms):
+                print(H2O_array)
+                H2O_mol.append(index)
+    return O_H_bonded, H2O_mol
 
 
 def process_atoms(atoms, nl, adsorbate_atoms=None, radius=2, grid=(2, 2, 0), clean_graph=None, H_bond=False):
@@ -233,14 +251,19 @@ def process_atoms(atoms, nl, adsorbate_atoms=None, radius=2, grid=(2, 2, 0), cle
             add_atoms_node(full, atoms, index, (x, y, z))   
 
     if H_bond == True:
-        O_H_bonded = find_H_bonds(atoms, adsorbate_atoms)
-        print(O_H_bonded)
+        O_H_bonded,H2O_mol = find_H_bonds(atoms, adsorbate_atoms)
+        print(O_H_bonded,H2O_mol)
         for ind,i in enumerate(full.nodes(data=True)):
             if i[1]['index'] in O_H_bonded:
                 H_bonds = O_H_bonded.count(i[1]['index'])
                 print(H_bonds)
                 #print(full.nodes[str(list(full.nodes)[ind])])
                 full.nodes[str(list(full.nodes)[ind])]['H_bond'] = H_bonds
+            if i[1]['index'] in H2O_mol:
+                H_bonds = H2O_mol.count(i[1]['index'])
+                print(H_bonds)
+                #print(full.nodes[str(list(full.nodes)[ind])])
+                full.nodes[str(list(full.nodes)[ind])]['H2O_mol'] = H_bonds
 
     # Add all edges to graph
     for index, atom in enumerate(atoms):

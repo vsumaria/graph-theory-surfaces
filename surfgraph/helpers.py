@@ -40,6 +40,7 @@ def draw_atomic_graphs(graphs, labels=None, atoms=None):
         labels = [None] * len(graphs)
 
     for index, graph in enumerate(graphs):
+
         node_colors = [] # Unknown node colors at this point
         if labels[index] is None: # Label undefined, create it as the node's element
             labels[index] = {node:str(node).split("[")[0] for node in graph.nodes()}
@@ -65,7 +66,7 @@ def draw_atomic_graphs(graphs, labels=None, atoms=None):
 
         # Spring layout tends to work best
         # TODO: Implement an atomic posititon layout?  Maybe someday
-        pos=nx.spring_layout(graph, k=float(len(graph))**-0.7)
+        pos=nx.spring_layout(graph, k=float(len(graph))**-0.6)
         nx.draw_networkx(graph, pos, node_color=node_colors, edge_color="black", edgecolors="black",
                          labels=labels[index], style=edge_styles, node_size=450, linewidths=2, width=2,
                          font_weight='bold')

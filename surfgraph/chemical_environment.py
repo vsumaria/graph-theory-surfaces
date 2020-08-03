@@ -22,7 +22,7 @@ def node_symbol(atom, offset):
     return "{}:{}[{},{},{}]".format(atom.symbol, atom.index, offset[0], offset[1], offset[2])
 
 def add_atoms_node(graph, atoms, a1, o1, **kwargs):
-    graph.add_node(node_symbol(atoms[a1], o1), index=a1, **kwargs)
+    graph.add_node(node_symbol(atoms[a1], o1), index=a1, central_ads=False, **kwargs)
 
 def add_atoms_edge(graph, atoms, a1, a2, o1, o2, adsorbate_atoms, **kwargs):
     dist = 2 - (1 if a1 in adsorbate_atoms else 0) - (1 if a2 in adsorbate_atoms else 0)
@@ -306,6 +306,8 @@ def process_atoms(atoms, nl, adsorbate_atoms=None, radius=2, grid=(2, 2, 0), cle
 
         new_ads = nx.ego_graph(full, initial, radius=(radius*2)+1, distance="dist")
         new_ads = nx.Graph(nx.subgraph(full, list(new_ads.nodes())))
+        for node in ads.nodes():
+            new_ads.add_node(node, central_ads=True)
 
         for node in full_ads.nodes():
             new_ads.add_node(node, ads=True)

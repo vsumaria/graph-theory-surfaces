@@ -7,9 +7,10 @@ from ase import Atoms
 from sys import argv
 from glob import glob
 from pathlib import Path
+from numpy.linalg import norm
 
 from surfgraph.chemical_environment import process_atoms
-from surfgraph.site_detection import generate_normals
+from surfgraph.site_detection import generate_normals_original as generate_normals
 from surfgraph.site_detection import generate_site_type
 from surfgraph.site_detection import generate_site_graphs
 
@@ -19,7 +20,7 @@ parser = argparse.ArgumentParser(
     description='Some command line utilities for atomic graphs')
 parser.add_argument(
     '--radius', '-radius', '-r',
-    type=int, default=2,
+    type=float, default=2,
     help='Sets the graph radius, this can be tuned for different behavior')
 parser.add_argument(
     '--mult', '-mult', '-m',
@@ -57,6 +58,23 @@ parser.add_argument(
     type=str, default='',
     help='Comma delimited list of elements to not be considered for sites')
 parser.add_argument(
+    '--coordination', '-coordination', '-c',
+    type=str, default='1,2,3',
+    help='Coordinations to generate sites for as comma  delimited list, default is 1,2,3')
+parser.add_argument(
+    '--output', '-output', '-o',
+    type=str, default=False,
+    help='Outputs unique sites to files with given file extension')
+parser.add_argument(
+    '--output-dir', '-output-dir',
+    type=str, default=".",
+    help='Allows you to output files to a specific folder')
+parser.add_argument(
+    '--count-configs',
+    action='store_const',
+    const=True, default=False,
+    help='Counts the number of configurations that are found')
+parser.add_argument(
     'adsorbate',
     type=str,
     help='Adsorbate atoms object')
@@ -82,9 +100,8 @@ for atoms_filename in args.filenames:
 
     adsorbate_atoms = [index for index, atom in enumerate(atoms) if atom.symbol in args.adsorbate_atoms]
 
-    normals, mask = generate_normals(atoms,  adsorbate_atoms=adsorbate_atoms, normalize_final=True)   ### make sure to manually set the normals for 2-D materials, all atoms should have a normal pointing up, as all atoms are surface atoms
+    normals, mask = generate_normals(atoms,  surface_normal=0.5, adsorbate_atoms=adsorbate_atoms, normalize_final=True)   ### make sure to manually set the normals for 2-D materials, all atoms should have a normal pointing up, as all atoms are surface atoms
     #normals, mask = np.ones((len(atoms), 3)) * (0, 0, 1), list(range(len(atoms)))
-
     constrained = constrained_indices(atoms)
     mask = [index for index in mask if index not in constrained]
     #for index in mask:
@@ -96,7 +113,10 @@ for atoms_filename in args.filenames:
 
     full_graph, envs = process_atoms(atoms, nl=nl, adsorbate_atoms=adsorbate_atoms, radius=args.radius, grid=args.grid) ### here the default radii as well as grid are considered, these can also be added as args.
 
-    for coord in [1, 2, 3]:
+    center = atoms.get_center_of_mass()
+
+    for coord in [int(x) for x in args.coordination.split(",")]:
+        found_count = 0
         found_sites = generate_site_type(atoms, mask, normals, coordination=coord, unallowed_elements=args.no_adsorb)
 
         for site in found_sites:
@@ -106,16 +126,28 @@ for atoms_filename in args.filenames:
 
         for index, sites in enumerate(unique_sites):
             new = atoms.copy()
-            for site in sites[0:1]:
-                ### this check is to ensure, that sites really close are not populated
-                if site.adsorb(new, ads, adsorbate_atoms) < args.min_dist:
-                    break
-                else:
-                    #Path("temp_ads").mkdir(parents=True, exist_ok=True)
-                    #write("temp_ads/{}-{}.POSCAR_{}".format(coord, index,i.split('/')[0]), new)
-                    movie.append(new)
-                    all_unique.append(site)
+            best_site = sites[0]
+            
+            for site in sites[1:]:
+                if norm(site.position - center) < norm(best_site.position - center):
+                    best_site = site
+
+            ### this check is to ensure, that sites really close are not populated
+            if best_site.adsorb(new, ads, adsorbate_atoms) < args.min_dist:
+                break
+            else:
+                #Path("temp_ads").mkdir(parents=True, exist_ok=True)
+                #write("temp_ads/{}-{}.POSCAR_{}".format(coord, index,i.split('/')[0]), new)
+                found_count += 1
+                movie.append(new)
+                all_unique.append(site)
+        if args.count_configs:
+            print("{} coordination has {} configurations".format(coord, found_count))
 
     if args.view:
         view(movie)
+
+if args.output:
+    for index, atoms in enumerate(movie):
+        atoms.write("{}/{:05}.{}".format(args.output_dir, index, args.output))
 

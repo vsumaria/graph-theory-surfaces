@@ -12,7 +12,7 @@ parser = argparse.ArgumentParser(
     description='Some command line utilities for atomic graphs')
 parser.add_argument(
     '--radius', '-radius', '-r',
-    type=int, default=2,
+    type=float, default=2,
     help='Sets the graph radius, this can be tuned for different behavior')
 parser.add_argument(
     '--mult', '-mult', '-m',

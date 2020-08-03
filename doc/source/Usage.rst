@@ -70,3 +70,8 @@ For example, if we only wanted to adsorb molecules to the top sites of Ni atoms 
 
     generate_sites.py --output POSCAR --output-dir top-sites-Ni --coordination "1" --no-adsorb "Cu" NO.POSCAR NiCu111.POSCAR
 
+==============
+Advanced Usage
+==============
+
+While there is a goal of providing command line tools to perform this work, for more advanced tasks or custom properties our provided command line tools can serve as an example of how to script these tasks.  The analyze_chem_env.py file serves to demonstrate the chemical_environment module and the generate_sites.py file serves to demonstrate the site_detection module.  This may be useful when automation or high throughput calculations are required which can be optimized or run in parallel.

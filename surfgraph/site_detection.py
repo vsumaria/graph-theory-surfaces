@@ -16,7 +16,7 @@ import numpy as np
 import networkx as nx
 
 
-def generate_normals(atoms, surface_normal=0.5, normalize_final=True, adsorbate_atoms=[]):
+def generate_normals_original(atoms, surface_normal=0.5, normalize_final=True, adsorbate_atoms=[]):
     normals = np.zeros(shape=(len(atoms), 3), dtype=float)
 
     atoms = atoms.copy()
@@ -75,8 +75,8 @@ def generate_site_type(atoms, surface_mask, normals, coordination, unallowed_ele
 
         normal = np.zeros(3)
         for index in cycle:
-            neighbors = len(nl.get_neighbors(index)[0]) ** 2
-            normal += normals[index] * neighbors
+            neighbors = len(nl.get_neighbors(index)[0])
+            normal += normals[index] * (1/neighbors)
         normal = normalize(normal)
         if coordination ==2:
             average[2] = average[2] - 0.5

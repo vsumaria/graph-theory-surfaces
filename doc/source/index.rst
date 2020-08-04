@@ -12,7 +12,7 @@ Welcome to SurfGraph's documentation!
 
    Installation <Installation>
    Settings <Settings>
-   Examples
+   Usage <Usage>
    Theory <Theory>
 
 Indices and tables

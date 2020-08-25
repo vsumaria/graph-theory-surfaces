@@ -34,7 +34,9 @@ The following are options you should consider checking since the defaults may no
 
 Shown below is an example:
 
-
+.. |Substitution Name| image:: ../../images/unique/Slide2.jpeg
+  :width: 400
+  :alt: Alternative text
 
 -----------------
 generate_sites.py

@@ -51,6 +51,8 @@ Note that in both cases, the NO are adsorbed in a bridge and two top sites. The 
 .. image:: ../../images/unique/Slide5.png
   :width: 400
 
+Note that in the first case
+
 -----------------
 generate_sites.py
 -----------------

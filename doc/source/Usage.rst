@@ -34,11 +34,11 @@ The following are options you should consider checking since the defaults may no
 
 Shown below is an example:
 
-.. image:: ../../images/unique/Slide2.png ../../images/unique/Slide4.png
+.. image:: ../../images/unique/Slide2.png 
   :width: 400
   :alt: Test
 
-  . image:: ../../images/unique/Slide4.png
+.. image:: ../../images/unique/Slide4.png
   :width: 400
   :alt: Test
 

@@ -51,7 +51,7 @@ Note that in both cases, the NO are adsorbed in a bridge and two top sites. The 
 .. image:: ../../images/unique_new/Slide5.png
   :width: 400
 
-Note that in the first case, one NO molecule is isolated with no other NO adsorbed in adjacent sites. This makes the graph for this case have only 1 NO, while all the NO's for the second case have atleast 1 NO adjacent.
+Note that in the first case, one NO molecule is isolated with no other NO adsorbed in adjacent sites. This makes the graph for this case have only 1 NO, while all the NO's for the second case have atleast 1 NO adjacent. These kinds of graphs are compared to each other to find unique chemical environments and subsequently find unique adsorbate configurations.
 
 -----------------
 generate_sites.py
@@ -63,7 +63,7 @@ This tool will find unique sites, generate normal vectors for them, then adsorb 
 
     generate_sites.py --view NO.POSCAR Pt111.POSCAR 
 
-This will adsorb a NO molecule (assuming NO.POSCAR exists) into all found sites on the Pt(111) surface.  This can be heavily tuned with the following settings.
+This will adsorb a NO molecule (assuming NO.POSCAR exists) into all found sites on the Pt(111) surface.  This can be heavily tuned with the following settings. 
 
 - "--radius 2": This corresponds to the graph radius for the chemical environments.  This can be thought of as the number of coordination shells which should be considered.  This can be tested for convergence by doing calculations on a large representative surface where one adsorbate is translated away from another and seeing how the binding energy changes.  If a seperation of 3 shells is required before the energy stops changing, this is a good starting place for radius.
 

@@ -43,6 +43,7 @@ Shown below is an example, with 2 high coverage NO configurations:
   :width: 400
 
 Note that in both cases, the NO are adsorbed in a bridge and two top sites. The analyze_chem_env.py can be used to find that these two cases are unique, as in first case the two NO's are adsorbed on adjacent sites and they are on opposite sites in the second case. Further shown below are the graphs used to compare the chemical enivornment:
+
 .. image:: ../../images/unique/Slide3.png 
   :width: 400
 

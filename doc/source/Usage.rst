@@ -51,7 +51,7 @@ Note that in both cases, the NO are adsorbed in a bridge and two top sites. The 
 .. image:: ../../images/unique_new/Slide5.png
   :width: 400
 
-Note that in the first case the
+Note that in the first case, one NO molecule is isolated with no other NO adsorbed in adjacent sites.
 
 -----------------
 generate_sites.py

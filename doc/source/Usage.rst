@@ -36,7 +36,7 @@ Shown below is an example:
 
 .. image:: ../../images/unique/Slide2.png ../../images/unique/Slide4.png
   :width: 400
-  :alt: Alternative text
+  :alt: Test
 
 -----------------
 generate_sites.py

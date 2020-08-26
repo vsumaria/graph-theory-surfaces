@@ -42,7 +42,8 @@ Shown below is an example, with 2 high coverage NO configurations:
 .. image:: ../../images/unique/Slide4.png
   :width: 400
 
-Note that in the first case
+Note that in both cases, the NO are adsorbed in a bridge and two top sites.
+
 -----------------
 generate_sites.py
 -----------------

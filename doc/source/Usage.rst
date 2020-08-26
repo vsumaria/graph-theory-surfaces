@@ -38,6 +38,10 @@ Shown below is an example:
   :width: 400
   :alt: Test
 
+  . image:: ../../images/unique/Slide4.png
+  :width: 400
+  :alt: Test
+
 -----------------
 generate_sites.py
 -----------------

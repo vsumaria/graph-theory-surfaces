@@ -32,19 +32,17 @@ The following are options you should consider checking since the defaults may no
 
 - "--unique": Enabling this flags does a uniqueness analysis and outputs the duplicates along with their energies if available.
 
-Shown below is an example:
-Config high coverage NO-1
+Shown below is an example, with 2 high coverage NO configurations:
+
 
 .. image:: ../../images/unique/Slide2.png 
   :width: 400
 
 
-Config high coverage NO-2:
-
 .. image:: ../../images/unique/Slide4.png
   :width: 400
 
-
+Note that in the first case
 -----------------
 generate_sites.py
 -----------------

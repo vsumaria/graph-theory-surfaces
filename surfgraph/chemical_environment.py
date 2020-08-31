@@ -32,6 +32,7 @@ def add_atoms_edge(graph, atoms, a1, a2, o1, o2, adsorbate_atoms, **kwargs):
                    bond=bond_symbol(atoms, a1, a2),
                    index='{}:{}'.format(*sorted([a1, a2])),
                    dist=dist,
+                   dist_edge=atoms.get_distance(a1,a2,mic='True'),
                    ads_only=0 if (a1 in adsorbate_atoms and a2 in adsorbate_atoms) else 2,
                    **kwargs)
 

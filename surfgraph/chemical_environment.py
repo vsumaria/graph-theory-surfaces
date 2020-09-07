@@ -197,6 +197,7 @@ def H2O_angle_check(H2O_array,atoms):
 def find_H_bonds(atoms, adsorbate_atoms):
     O_H_bonded = []
     H2O_mol = []
+    OH_len = []
     for index in adsorbate_atoms:
         H2O_array = []
 
@@ -207,7 +208,7 @@ def find_H_bonds(atoms, adsorbate_atoms):
                     print(index,index_2)
                     if check_H_bond_angle(int(index_2),int(index),atoms,adsorbate_atoms):
                         O_H_bonded.append(index)
-
+                        OH_len.append( atoms.get_distance(index,index_2,mic=True))
                 if atoms[int(index_2)].symbol == 'H' and (atoms.get_distance(index,index_2,mic=True) < 1.2):
                     print('adding {} to H2O array'.format(index_2))
                     H2O_array.append(index_2)
@@ -215,7 +216,7 @@ def find_H_bonds(atoms, adsorbate_atoms):
             if len(H2O_array) == 3 and H2O_angle_check(H2O_array,atoms):
                 print(H2O_array)
                 H2O_mol.append(index)
-    return O_H_bonded, H2O_mol
+    return O_H_bonded, OH_len, H2O_mol
 
 
 def process_atoms(atoms, nl, adsorbate_atoms=None, radius=2, grid=(2, 2, 0), clean_graph=None, H_bond=False):
@@ -252,17 +253,27 @@ def process_atoms(atoms, nl, adsorbate_atoms=None, radius=2, grid=(2, 2, 0), cle
             add_atoms_node(full, atoms, index, (x, y, z))   
 
     if H_bond == True:
-        O_H_bonded,H2O_mol = find_H_bonds(atoms, adsorbate_atoms)
-        print(O_H_bonded,H2O_mol)
+        O_H_bonded,OH_len,H2O_mol = find_H_bonds(atoms, adsorbate_atoms)
+        print('Printing relevant information')
+        print(O_H_bonded,OH_len,H2O_mol)
         for ind,i in enumerate(full.nodes(data=True)):
+            Hb_array = []
             if i[1]['index'] in O_H_bonded:
                 H_bonds = O_H_bonded.count(i[1]['index'])
-                print(H_bonds)
+                #print(int(i[1]['index']),O_H_bonded)
+                H_result = np.where(np.array(O_H_bonded) == i[1]['index'])
+                for hbi in H_result[0]:
+                    #print(hbi,OH_len[hbi])
+                    Hb_array.append(OH_len[hbi])
+                #Hb_array.append(OH_len[hbi] for hbi in H_result[0])
+                #print(H_result,Hb_array)
+                #print(H_bonds)
                 #print(full.nodes[str(list(full.nodes)[ind])])
                 full.nodes[str(list(full.nodes)[ind])]['H_bond'] = H_bonds
+                full.nodes[str(list(full.nodes)[ind])]['H_bond_len'] = Hb_array
             if i[1]['index'] in H2O_mol:
                 H_bonds = H2O_mol.count(i[1]['index'])
-                print(H_bonds)
+                #print(H_bonds)
                 #print(full.nodes[str(list(full.nodes)[ind])])
                 full.nodes[str(list(full.nodes)[ind])]['H2O_mol'] = H_bonds
 

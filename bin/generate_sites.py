@@ -149,5 +149,5 @@ for atoms_filename in args.filenames:
 
 if args.output:
     for index, atoms in enumerate(movie):
-        atoms.write("{}/{:05}.{}".format(args.output_dir, index, args.output))
+        atoms.write("./{}/{:05}.{}".format(args.output_dir, index, args.output))
 

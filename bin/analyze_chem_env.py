@@ -7,6 +7,8 @@ from surfgraph.helpers import draw_atomic_graphs
 from sys import argv
 from ase.io import read
 import argparse
+import os
+import shutil
 
 parser = argparse.ArgumentParser(
     description='Some command line utilities for atomic graphs')
@@ -42,6 +44,11 @@ parser.add_argument(
     action='store_const',
     const=True, default=False,
     help='Outputs the unique chemical environments')
+parser.add_argument(
+    '--direc', '-direc', '-d',
+    action='store_const',
+    const=True, default=False,
+    help='Outputs the unique chemical environments in a directory')
 parser.add_argument(
     'filenames',
     type=str,
@@ -111,6 +118,16 @@ if args.unique:
             print("{}: Unknown energy, {} duplicates".format(group[0][1], len(group) - 1))
         else:
             print("{}: {} eV, {} duplicates".format(group[0][1], group[0][0], len(group) - 1))
+            if args.direc:
+                if os.path.isdir('unique_dir'):
+                    file_d = group[0][1].split('/')[0]
+                    file_a = group[0][1].split('/')[1]
+                    shutil.copyfile('./'+group[0][1],'./unique_dir/{}_{}'.format(file_a,file_d))
+                else:
+                    os.makedirs('./unique_dir')
+                    file_d = group[0][1].split('/')[0]
+                    file_a = group[0][1].split('/')[1]
+                    shutil.copyfile(group[0][1],'./unique_dir/{}_{}'.format(file_a,file_d))
         for duplicate in group[1:]:
             if duplicate[0] == float('inf'):
                 print("-> {}: Unknown energy".format(duplicate[1]))

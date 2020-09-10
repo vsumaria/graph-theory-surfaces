@@ -2,7 +2,7 @@ from numpy.linalg import norm
 from ase.neighborlist import NeighborList, natural_cutoffs
 from itertools import combinations
 from ase.constraints import constrained_indices
-
+from catkit.gen.utils import plane_normal
 from surfgraph.chemical_environment import process_atoms
 from surfgraph.chemical_environment import process_site
 from surfgraph.chemical_environment import unique_chem_envs
@@ -42,6 +42,29 @@ def generate_normals_original(atoms, surface_normal=0.5, normalize_final=True, a
 
     return normals, surface_mask
 
+def generate_normals_new(atoms,cycle,nl):
+    site_atoms = cycle.copy()
+    if len(site_atoms) >2:
+        atom_array = []
+        for a in site_atoms:
+            atom_array.append(atoms[a].position)
+        normal = plane_normal(np.array(atom_array))
+
+    else:
+        for i in nl.get_neighbors(site_atoms[0])[0]:
+            ### This if condition is to ensure that if the atoms are the same row, then the plane is formed btwn an atom in another row
+            #print(i,atoms[i].position[2] - atoms[site_atoms[0]].position[2])
+            if (i not in site_atoms) and (abs(atoms[i].position[2] - atoms[site_atoms[0]].position[2])>0.1) and (abs(atoms[i].position[2] - atoms[site_atoms[0]].position[2])<1.):
+                site_atoms.append(i)
+                print(site_atoms)
+                break
+
+        atom_array = []
+        for a in site_atoms:
+            atom_array.append(atoms[a].position)
+        normal = plane_normal(np.array(atom_array))
+    return normal
+
 def generate_site_type(atoms, surface_mask, normals, coordination, unallowed_elements=[]):
     cutoffs = natural_cutoffs(atoms)
 
@@ -60,7 +83,7 @@ def generate_site_type(atoms, surface_mask, normals, coordination, unallowed_ele
                break
        else: # All were valid
             valid.append(list(cycle))
-
+    print(valid)
     for cycle in valid:
         tracked = np.array(atoms[cycle[0]].position, dtype=float)
         known = np.zeros(shape=(coordination, 3), dtype=float)
@@ -74,10 +97,18 @@ def generate_site_type(atoms, surface_mask, normals, coordination, unallowed_ele
         average = np.average(known, axis=0)
 
         normal = np.zeros(3)
-        for index in cycle:
+        #for index in cycle:
+            #neighbors = len(nl.get_neighbors(index)[0])
+            #normal += normals[index] * (1/neighbors)
+        #normal = normalize(normal)
+        #for index in cycle:
+            #print(cycle)
+        if len(cycle) >1:
             neighbors = len(nl.get_neighbors(index)[0])
-            normal += normals[index] * (1/neighbors)
-        normal = normalize(normal)
+            cycle_orig = cycle
+            print(cycle)
+            normal = generate_normals_new(atoms,cycle_orig,nl)
+            print(cycle,normal)
         if coordination ==2:
             average[2] = average[2] - 0.5
         if coordination == 3:

@@ -2,6 +2,10 @@ from numpy.linalg import norm
 from ase.neighborlist import NeighborList, natural_cutoffs
 from itertools import combinations
 from ase.constraints import constrained_indices
+<<<<<<< HEAD
+=======
+
+>>>>>>> cc46ac8a04b7dda9577194c822b3623fd2a3a604
 from surfgraph.chemical_environment import process_atoms
 from surfgraph.chemical_environment import process_site
 from surfgraph.chemical_environment import unique_chem_envs
@@ -63,6 +67,7 @@ def generate_normals_original(atoms, surface_normal=0.5, normalize_final=True, a
 
     return normals, surface_mask
 
+<<<<<<< HEAD
 def get_angle_cycle(a1,a2,a3):
     v1 = a1-a2
     v2 = a3-a2
@@ -115,6 +120,8 @@ def generate_normals_new(atoms,cycle,nl,surface_mask):
     normal = normalize(normal)
     return normal
 
+=======
+>>>>>>> cc46ac8a04b7dda9577194c822b3623fd2a3a604
 def generate_site_type(atoms, surface_mask, normals, coordination, unallowed_elements=[]):
     cutoffs = natural_cutoffs(atoms)
 
@@ -133,7 +140,11 @@ def generate_site_type(atoms, surface_mask, normals, coordination, unallowed_ele
                break
        else: # All were valid
             valid.append(list(cycle))
+<<<<<<< HEAD
     #print(valid)
+=======
+
+>>>>>>> cc46ac8a04b7dda9577194c822b3623fd2a3a604
     for cycle in valid:
         tracked = np.array(atoms[cycle[0]].position, dtype=float)
         known = np.zeros(shape=(coordination, 3), dtype=float)
@@ -147,6 +158,7 @@ def generate_site_type(atoms, surface_mask, normals, coordination, unallowed_ele
         average = np.average(known, axis=0)
 
         normal = np.zeros(3)
+<<<<<<< HEAD
         #for index in cycle:
             #neighbors = len(nl.get_neighbors(index)[0])
             #normal += normals[index] * (1/neighbors)
@@ -165,6 +177,12 @@ def generate_site_type(atoms, surface_mask, normals, coordination, unallowed_ele
             #print(cycle)
             normal = generate_normals_new(atoms,cycle_orig,nl,surface_mask)
             #print(cycle,normal)
+=======
+        for index in cycle:
+            neighbors = len(nl.get_neighbors(index)[0])
+            normal += normals[index] * (1/neighbors)
+        normal = normalize(normal)
+>>>>>>> cc46ac8a04b7dda9577194c822b3623fd2a3a604
         if coordination ==2:
             average[2] = average[2] - 0.5
         if coordination == 3:

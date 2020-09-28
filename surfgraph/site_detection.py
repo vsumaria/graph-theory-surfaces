@@ -2,7 +2,7 @@ from numpy.linalg import norm
 from ase.neighborlist import NeighborList, natural_cutoffs
 from itertools import combinations
 from ase.constraints import constrained_indices
-from catkit.gen.utils import plane_normal
+
 from surfgraph.chemical_environment import process_atoms
 from surfgraph.chemical_environment import process_site
 from surfgraph.chemical_environment import unique_chem_envs
@@ -15,6 +15,27 @@ import networkx.algorithms.isomorphism as iso
 import numpy as np
 import networkx as nx
 
+
+def plane_normal(xyz):
+    """Return the surface normal vector to a plane of best fit. THIS CODE IS BORROWED FROM CATKIT
+
+    Parameters
+    ----------
+    xyz : ndarray (n, 3)
+        3D points to fit plane to.
+
+    Returns
+    -------
+    vec : ndarray (1, 3)
+        Unit vector normal to the plane of best fit.
+    """
+    A = np.c_[xyz[:, 0], xyz[:, 1], np.ones(xyz.shape[0])]
+    vec, _, _, _ = scipy.linalg.lstsq(A, xyz[:, 2])
+    vec[2] = -1.0
+
+    vec /= -np.linalg.norm(vec)
+
+    return vec
 
 def generate_normals_original(atoms, surface_normal=0.5, normalize_final=True, adsorbate_atoms=[]):
     normals = np.zeros(shape=(len(atoms), 3), dtype=float)

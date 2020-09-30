@@ -263,9 +263,7 @@ def process_atoms(atoms, nl, adsorbate_atoms=None, radius=2, grid=(2, 2, 0), cle
             Hb_array = []
             #print(H_O_bonded)
             if i[1]['index'] in H_O_bonded:
-                print(i[1]['index'])
                 O_result =  H_O_bonded.index(i[1]['index'])
-                print(O_result)
                 full.nodes[str(list(full.nodes)[ind])]['H_bond_O'] = O_H_bonded[O_result]
                 full.nodes[str(list(full.nodes)[ind])]['H_bond_len'] = OH_len[O_result]
             if i[1]['index'] in O_H_bonded:

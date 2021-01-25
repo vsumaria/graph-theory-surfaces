@@ -4,9 +4,9 @@ Installation Instructions
 
 The first step will be to obtain the code either via pip or directly on gitlab.
 
-*********************
-Pip (Not Working Yet)
-*********************
+***
+Pip
+***
 
 .. code-block:: bash
 

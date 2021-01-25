@@ -32,6 +32,27 @@ The following are options you should consider checking since the defaults may no
 
 - "--unique": Enabling this flags does a uniqueness analysis and outputs the duplicates along with their energies if available.
 
+Shown below is an example, with 2 high coverage NO configurations:
+
+
+.. image:: ../../images/unique_new/Slide2.png 
+  :width: 400
+
+
+.. image:: ../../images/unique_new/Slide4.png
+  :width: 400
+
+Note that in both cases, the NO are adsorbed in a bridge and two top sites. The analyze_chem_env.py can be used to find that these two cases are unique, as in first case the two NO's are adsorbed on adjacent sites and they are on opposite sites in the second case. Further shown below are the graphs used to compare the chemical enivornment:
+
+.. image:: ../../images/unique_new/Slide3.png 
+  :width: 400
+
+
+.. image:: ../../images/unique_new/Slide5.png
+  :width: 400
+
+Note that in the first case, one NO molecule is isolated with no other NO adsorbed in adjacent sites. This makes the graph for this case have only 1 NO, while all the NO's for the second case have atleast 1 NO adjacent. These kinds of graphs are compared to each other to find unique chemical environments and subsequently find unique adsorbate configurations.
+
 -----------------
 generate_sites.py
 -----------------
@@ -42,7 +63,7 @@ This tool will find unique sites, generate normal vectors for them, then adsorb 
 
     generate_sites.py --view NO.POSCAR Pt111.POSCAR 
 
-This will adsorb a NO molecule (assuming NO.POSCAR exists) into all found sites on the Pt(111) surface.  This can be heavily tuned with the following settings.
+This will adsorb a NO molecule (assuming NO.POSCAR exists) into all found sites on the Pt(111) surface.  This can be heavily tuned with the following settings. 
 
 - "--radius 2": This corresponds to the graph radius for the chemical environments.  This can be thought of as the number of coordination shells which should be considered.  This can be tested for convergence by doing calculations on a large representative surface where one adsorbate is translated away from another and seeing how the binding energy changes.  If a seperation of 3 shells is required before the energy stops changing, this is a good starting place for radius.
 

@@ -13,6 +13,7 @@ from surfgraph.chemical_environment import process_atoms
 from surfgraph.site_detection import generate_normals_original as generate_normals
 from surfgraph.site_detection import generate_site_type
 from surfgraph.site_detection import generate_site_graphs
+from surfgraph.site_detection import orient_H_bond
 
 import argparse
 
@@ -121,9 +122,9 @@ for atoms_filename in args.filenames:
 
         for site in found_sites:
             all_sites.append(site)
-        #print(len(found_sites))
+        
         unique_sites = generate_site_graphs(atoms, full_graph, nl, found_sites, adsorbate_atoms=adsorbate_atoms, radius=args.radius)
-
+        
         for index, sites in enumerate(unique_sites):
             new = atoms.copy()
             best_site = sites[0]
@@ -131,15 +132,17 @@ for atoms_filename in args.filenames:
             for site in sites[1:]:
                 if norm(site.position - center) < norm(best_site.position - center):
                     best_site = site
-
+            #print(best_site.adsorb(new, ads, adsorbate_atoms),args.min_dist)
             ### this check is to ensure, that sites really close are not populated
-            if best_site.adsorb(new, ads, adsorbate_atoms) < args.min_dist:
-                break
-            else:
-                #Path("temp_ads").mkdir(parents=True, exist_ok=True)
-                #write("temp_ads/{}-{}.POSCAR_{}".format(coord, index,i.split('/')[0]), new)
+            if best_site.adsorb(new, ads, adsorbate_atoms) >= args.min_dist:
                 found_count += 1
-                movie.append(new)
+                H_bond_movie = orient_H_bond(new)
+                #print(H_bond_movie[:])
+                if len(H_bond_movie) > 0:
+                    for i in H_bond_movie:
+                        movie.append(i)
+                else:
+                    movie.append(new)
                 all_unique.append(site)
         if args.count_configs:
             print("{} coordination has {} configurations".format(coord, found_count))
@@ -149,5 +152,5 @@ for atoms_filename in args.filenames:
 
 if args.output:
     for index, atoms in enumerate(movie):
-        atoms.write("{}/{:05}.{}".format(args.output_dir, index, args.output))
+        atoms.write("./{}/{:05}.{}".format(args.output_dir, index, args.output))
 

@@ -6,7 +6,7 @@ with open("README", "r") as readme:
 
 setuptools.setup(
         name="surfgraph",
-        version="0.1.1",
+        version="0.2.0",
         scripts=['bin/analyze_chem_env.py', 'bin/generate_sites.py'],
         author="Tristan Maxson, Siddharth Deshpande",
         author_email="tgmaxson@gmail.com, sidd20111992@gmail.com",
